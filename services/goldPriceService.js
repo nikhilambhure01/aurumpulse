@@ -5,6 +5,7 @@
 // Handles API calls, price comparisons, and alert logic
 
 const GoldPrice = require("../models/GoldPrice");
+const User = require("../models/User");
 const sendWhatsAppAlert = require("../utils/sendWhatsAppAlert");
 
 /**
@@ -59,18 +60,23 @@ async function checkGoldPrice(client) {
             // ===========================================
             // STEP 3: CHECK IF ALERT SHOULD BE SENT
             // ===========================================
-            // Alert threshold: ₹100 or more change (increase or decrease)
-            if (Math.abs(priceDiff) >= 0) {
+            // Alert threshold: ₹XXX or more change (increase or decrease)
+            if (Math.abs(priceDiff) >= process.env.GOLD_PRICE_CHANGE_THRESHOLD) {
                 console.log("🚨 ALERT THRESHOLD REACHED!");
                 console.log(`📱 Sending WhatsApp alert for ₹${priceDiff.toFixed(2)} change...`);
 
                 // DONE: Implement WhatsApp alert via Twilio
-                await sendWhatsAppAlert(
-                    client,
-                    lastRecord.price_ounce,
-                    currentPrice,
-                    priceDiff
-                );
+                const users = await User.find({ isActive: true });
+
+                for (const user of users) {
+                    await sendWhatsAppAlert(
+                        client,
+                        user.phone,
+                        lastRecord.price_ounce,
+                        currentPrice,
+                        priceDiff
+                    );
+                }
 
                 alertSent = true;
                 console.log("✅ Alert sent successfully");

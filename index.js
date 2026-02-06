@@ -11,8 +11,12 @@ const twilio = require("twilio");
 
 const startGoldCron = require("./cron/goldCron");
 const checkGoldPrice = require("./services/goldPriceService");
+const User = require("./models/User");
 
 const app = express();
+
+app.use(express.json());
+
 const PORT = 3000;
 
 console.log("🚀 Starting AuruMPulse application...");
@@ -46,6 +50,19 @@ console.log("✅ Twilio client initialized");
 // ===========================================
 // API ENDPOINTS
 // ===========================================
+
+// POST /api/users
+app.post("/api/users", async (req, res) => {
+    const { phone } = req.body;
+
+    const user = await User.create({ phone });
+
+    res.json({
+        success: true,
+        message: "User added. Ask user to join WhatsApp sandbox.",
+        user,
+    });
+});
 
 /**
  * GET /api/gold-price
@@ -85,6 +102,7 @@ app.get('/', (req, res) => {
     console.log("🏥 Health check endpoint accessed");
     res.send('Hello, Aurum! 🥇 Gold Price Monitoring System is running.');
 });
+
 
 // ===========================================
 // START SERVER
