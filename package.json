@@ -1,0 +1,23 @@
+{
+  "name": "aurumpulse",
+  "version": "1.0.0",
+  "description": "Gold Price Tracker",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "gold"
+  ],
+  "author": "arghamallick",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.4",
+    "express": "^5.2.1",
+    "mongoose": "^9.1.6",
+    "node-cron": "^4.2.1",
+    "twilio": "^5.12.1"
+  }
+}
