@@ -5,6 +5,7 @@
 // Handles API calls, price comparisons, and alert logic
 
 const GoldPrice = require("../models/GoldPrice");
+const sendWhatsAppAlert = require("../utils/sendWhatsAppAlert");
 
 /**
  * Check current gold price and store in database
@@ -63,8 +64,13 @@ async function checkGoldPrice(client) {
                 console.log("🚨 ALERT THRESHOLD REACHED!");
                 console.log(`📱 Sending WhatsApp alert for ₹${priceDiff.toFixed(2)} change...`);
 
-                // TODO: Implement WhatsApp alert via Twilio
-                // await sendWhatsAppAlert(client, currentPrice, priceDiff);
+                // DONE: Implement WhatsApp alert via Twilio
+                await sendWhatsAppAlert(
+                    client,
+                    lastRecord.price_ounce,
+                    currentPrice,
+                    priceDiff
+                );
 
                 alertSent = true;
                 console.log("✅ Alert sent successfully");
