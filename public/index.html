@@ -1,17 +1,699 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>AurumPulse</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 AurumPulse - Real-Time Gold Price Alerts on WhatsApp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header/Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #f39c12, #d4af37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #f39c12;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 5rem 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero .tagline {
+            font-size: 1.5rem;
+            color: #34495e;
+            margin-bottom: 1rem;
+        }
+
+        .hero .subtitle {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 2.5rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 3rem;
+            background: linear-gradient(135deg, #f39c12, #d4af37);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.6);
+        }
+
+        /* What We Do Section */
+        .section {
+            padding: 4rem 0;
+        }
+
+        .section-white {
+            background: white;
+        }
+
+        .section-light {
+            background: #f8f9fa;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .section-description {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            margin-bottom: 3rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #fff7e6, #ffe9cc);
+            border-left: 5px solid #f39c12;
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+
+        .use-cases {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .use-case {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .feature-card p {
+            color: #7f8c8d;
+            line-height: 1.8;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        /* How It Works */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #f39c12, #d4af37);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+        }
+
+        .step h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .step p {
+            color: #7f8c8d;
+            line-height: 1.8;
+        }
+
+        .checklist {
+            list-style: none;
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        .checklist li {
+            padding: 0.3rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #27ae60;
+            font-weight: 500;
+        }
+
+        .checklist li:before {
+            content: "✔";
+            position: absolute;
+            left: 0;
+        }
+
+        /* Alert Example */
+        .alert-example {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 500px;
+            margin: 2rem auto;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            border: 2px solid #f39c12;
+        }
+
+        .alert-example .alert-header {
+            background: linear-gradient(135deg, #f39c12, #d4af37);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* Who Is This For */
+        .audience-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .audience-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .audience-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Privacy Section */
+        .privacy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .privacy-item {
+            background: #e8f5e9;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .privacy-item h4 {
+            color: #27ae60;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Why Choose Section */
+        .benefits {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .benefit-tag {
+            background: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        /* Footer CTA */
+        .footer-cta {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .footer-cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-cta p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .cta-button-white {
+            background: white;
+            color: #f39c12;
+        }
+
+        .cta-button-white:hover {
+            background: #f8f9fa;
+        }
+
+        /* Footer */
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        footer p {
+            opacity: 0.8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .tagline {
+                font-size: 1.2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .features-grid,
+            .steps,
+            .audience-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <h1>💰 AurumPulse</h1>
-    <p>Get real-time Gold Price Alerts on WhatsApp</p>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <div class="logo">💰 AurumPulse</div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#privacy">Privacy</a></li>
+                <li><a href="/login">Login</a></li>
+            </ul>
+        </div>
+    </nav>
 
-    <a href="/login">
-        <button>Login</button>
-    </a>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>💰 AurumPulse</h1>
+            <p class="tagline">Gold Price Alerts on WhatsApp</p>
+            <p class="subtitle">Stay informed. Stay ahead. Never miss a major gold price move.</p>
+            <a href="/login" class="cta-button">Get Started Now</a>
+        </div>
+    </section>
+
+    <!-- What We Do -->
+    <section class="section section-white">
+        <div class="container">
+            <h2 class="section-title">🌟 What does AurumPulse do?</h2>
+            <p class="section-description">
+                AurumPulse continuously monitors live 24-karat gold prices and automatically notifies you on WhatsApp
+                when the price changes beyond a defined threshold.
+            </p>
+
+            <div class="info-box">
+                <h3 style="color: #f39c12; margin-bottom: 1rem;">Whether you are:</h3>
+                <div class="use-cases">
+                    <div class="use-case">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">💍</div>
+                        <strong>Planning to buy gold</strong>
+                    </div>
+                    <div class="use-case">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📈</div>
+                        <strong>Tracking prices for investment</strong>
+                    </div>
+                    <div class="use-case">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📰</div>
+                        <strong>Staying informed about the market</strong>
+                    </div>
+                </div>
+                <p style="margin-top: 1rem; font-weight: 500;">
+                    AurumPulse ensures you never miss an important price movement.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Features -->
+    <section id="features" class="section section-light">
+        <div class="container">
+            <h2 class="section-title">🔔 Key Features</h2>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Real-Time Gold Price Monitoring</h3>
+                    <ul class="feature-list">
+                        <li>Tracks live international gold prices</li>
+                        <li>Converts them into Indian currency</li>
+                        <li>Focuses on 24K gold pricing</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📲</div>
+                    <h3>WhatsApp Alerts (No App Needed)</h3>
+                    <ul class="feature-list">
+                        <li>Alerts delivered directly on WhatsApp</li>
+                        <li>Works on any phone with WhatsApp</li>
+                        <li>No extra apps or background services</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔐</div>
+                    <h3>Secure & Consent-Based</h3>
+                    <ul class="feature-list">
+                        <li>Alerts only after explicit activation</li>
+                        <li>One-time opt-in subscription</li>
+                        <li>Unsubscribe anytime with a click</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Subscription Status Control</h3>
+                    <ul class="feature-list">
+                        <li>Check subscription status anytime</li>
+                        <li>Reactivate or deactivate alerts freely</li>
+                        <li>Transparent, user-controlled system</li>
+                    </ul>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Automatic & Reliable</h3>
+                    <ul class="feature-list">
+                        <li>Automatic price checks at intervals</li>
+                        <li>Alerts only for threshold changes</li>
+                        <li>No spam — only meaningful updates</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="section section-white">
+        <div class="container">
+            <h2 class="section-title">🧭 How to Use AurumPulse</h2>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Login with Your Mobile Number</h3>
+                    <p>Enter your WhatsApp mobile number. No passwords required. Your number is securely stored.</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Activate WhatsApp Alerts</h3>
+                    <p>Click "Activate via WhatsApp". WhatsApp opens automatically. Send the displayed activation
+                        message (one-time).</p>
+                    <ul class="checklist">
+                        <li>Your consent</li>
+                        <li>Message security</li>
+                        <li>Spam prevention</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Check Subscription Status</h3>
+                    <p>Click "Check Status" on your dashboard. System verifies message delivery. Subscription activates
+                        instantly upon success.</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Receive Gold Price Alerts</h3>
+                    <p>Once active, you'll receive timely alerts when gold prices change significantly.</p>
+                    <div class="alert-example">
+                        <div class="alert-header">🚨 Gold Price Alert</div>
+                        <p>Price changed significantly. Stay informed and take action!</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <h3>Unsubscribe Anytime</h3>
+                    <p>Click "Unsubscribe". WhatsApp opens automatically. Send STOP message to disable alerts.</p>
+                    <p style="color: #27ae60; font-weight: bold; margin-top: 1rem;">No hidden conditions. Full control
+                        in your hands.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Privacy & Safety -->
+    <section id="privacy" class="section section-light">
+        <div class="container">
+            <h2 class="section-title">🔒 Privacy & Safety</h2>
+
+            <div class="privacy-grid">
+                <div class="privacy-item">
+                    <h4>🔐 Never Shared</h4>
+                    <p>Your phone number is never shared with third parties</p>
+                </div>
+
+                <div class="privacy-item">
+                    <h4>✅ Permission-Based</h4>
+                    <p>Messages sent only with your explicit permission</p>
+                </div>
+
+                <div class="privacy-item">
+                    <h4>🚫 No Spam</h4>
+                    <p>No marketing, no promotions, no unwanted messages</p>
+                </div>
+
+                <div class="privacy-item">
+                    <h4>🎯 Dedicated Purpose</h4>
+                    <p>Used only for gold price alerts — nothing else</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Who Is This For -->
+    <section class="section section-white">
+        <div class="container">
+            <h2 class="section-title">👨‍💻 Who Is This For?</h2>
+
+            <div class="audience-grid">
+                <div class="audience-card">
+                    <div class="audience-icon">🪙</div>
+                    <strong>Gold Investors</strong>
+                </div>
+
+                <div class="audience-card">
+                    <div class="audience-icon">💍</div>
+                    <strong>Jewellery Buyers</strong>
+                </div>
+
+                <div class="audience-card">
+                    <div class="audience-icon">📈</div>
+                    <strong>Market Watchers</strong>
+                </div>
+
+                <div class="audience-card">
+                    <div class="audience-icon">🎓</div>
+                    <strong>Students & Professionals</strong>
+                </div>
+
+                <div class="audience-card">
+                    <div class="audience-icon">🔔</div>
+                    <strong>Anyone wanting smart updates</strong>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose -->
+    <section class="section section-light">
+        <div class="container">
+            <h2 class="section-title">🏁 Why AurumPulse?</h2>
+
+            <div class="benefits">
+                <div class="benefit-tag">✔ Simple</div>
+                <div class="benefit-tag">✔ Fast</div>
+                <div class="benefit-tag">✔ Reliable</div>
+                <div class="benefit-tag">✔ No app installation</div>
+                <div class="benefit-tag">✔ Uses trusted WhatsApp</div>
+                <div class="benefit-tag">✔ Real-time backend verification</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer CTA -->
+    <section class="footer-cta">
+        <div class="container">
+            <h2>📌 Ready to Stay Informed?</h2>
+            <p>AurumPulse is designed to be transparent, consent-driven, and user-friendly.<br>
+                You stay in control — we just keep you informed.</p>
+            <a href="/login" class="cta-button cta-button-white">Start Getting Alerts Now</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 AurumPulse. Built with transparency and care.</p>
+            <p style="margin-top: 0.5rem;">Real-time gold price alerts delivered with your consent.</p>
+        </div>
+    </footer>
+
 </body>
 
 </html>

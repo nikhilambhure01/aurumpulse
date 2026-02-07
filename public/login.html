@@ -1,68 +1,448 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Login</title>
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AurumPulse</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<body>
-    <h2>Login with Mobile Number</h2>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-    <input type="text" id="phone" placeholder="+91XXXXXXXXXX" />
-    <br /><br />
-    <button onclick="login()">Login</button>
+        .container {
+            width: 100%;
+            max-width: 450px;
+        }
 
-    <p id="msg"></p>
+        /* Logo Section */
+        .logo-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
 
-    <script>
-        async function login() {
-            const phone = document.getElementById("phone").value;
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
 
-            const res = await fetch("/api/users", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ phone })
-            });
+        .logo-text {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #f39c12, #d4af37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
 
-            const data = await res.json();
+        .logo-tagline {
+            color: #2c3e50;
+            font-size: 0.95rem;
+            opacity: 0.8;
+        }
 
-            if (data.success) {
-                localStorage.setItem("phone", phone);
-                window.location.href = "/dashboard";
-            } else {
-                document.getElementById("msg").innerText = data.message;
+        /* Login Card */
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        // 🔐 If already logged in, redirect to dashboard
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h2 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: #7f8c8d;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #f39c12;
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: #bdc3c7;
+        }
+
+        .input-hint {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #95a5a6;
+        }
+
+        /* Button */
+        .login-button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f39c12, #d4af37);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .login-button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Message */
+        .message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .message.error {
+            background: #ffe8e8;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+            display: block;
+        }
+
+        .message.success {
+            background: #e8f5e9;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+            display: block;
+        }
+
+        .message.info {
+            background: #e3f2fd;
+            color: #2196f3;
+            border: 1px solid #2196f3;
+            display: block;
+        }
+
+        /* Features List */
+        .features-list {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .feature-icon {
+            font-size: 1.3rem;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        /* Back to Home */
+        .back-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .back-link a {
+            color: #2c3e50;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+
+        .back-link a:hover {
+            color: #f39c12;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Security Badge */
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            color: #27ae60;
+            font-size: 0.85rem;
+        }
+
+        .security-badge .icon {
+            font-size: 1.2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .login-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .logo-text {
+                font-size: 1.7rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <div class="logo">💰</div>
+            <div class="logo-text">AurumPulse</div>
+            <p class="logo-tagline">Real-Time Gold Price Alerts</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="login-card">
+            <div class="login-header">
+                <h2>Welcome Back</h2>
+                <p>Login with your WhatsApp number to manage alerts</p>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="phone">WhatsApp Mobile Number</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📱</span>
+                        <input type="tel" id="phone" class="form-input" placeholder="+91XXXXXXXXXX" autocomplete="tel"
+                            required />
+                    </div>
+                    <small class="input-hint">Enter your number with country code (e.g., +91 for India)</small>
+                </div>
+
+                <button type="submit" class="login-button" id="loginBtn">
+                    Login
+                </button>
+
+                <div id="msg" class="message"></div>
+            </form>
+
+            <!-- Features List -->
+            <div class="features-list">
+                <div class="feature-item">
+                    <span class="feature-icon">🔐</span>
+                    <span>Secure & password-free login</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📲</span>
+                    <span>Direct WhatsApp notifications</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">⚡</span>
+                    <span>Instant price alerts</span>
+                </div>
+            </div>
+
+            <!-- Security Badge -->
+            <div class="security-badge">
+                <span class="icon">✓</span>
+                <span><strong>Your privacy is protected.</strong> Number never shared.</span>
+            </div>
+
+            <!-- Back to Home -->
+            <div class="back-link">
+                <a href="/">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if already logged in
         if (localStorage.getItem("phone")) {
             window.location.href = "/dashboard";
         }
 
-        async function login() {
-            const phone = document.getElementById("phone").value;
+        async function handleLogin(event) {
+            event.preventDefault();
 
+            const phoneInput = document.getElementById("phone");
+            const phone = phoneInput.value.trim();
+            const msgElement = document.getElementById("msg");
+            const loginBtn = document.getElementById("loginBtn");
+
+            // Clear previous messages
+            msgElement.className = "message";
+            msgElement.textContent = "";
+
+            // Validate phone number
             if (!phone) {
-                document.getElementById("msg").innerText =
-                    "Please enter your mobile number";
+                showMessage("Please enter your mobile number", "error");
                 return;
             }
 
-            const res = await fetch("/api/users", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ phone })
-            });
+            // Basic phone validation (should start with + and have digits)
+            const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+            if (!phoneRegex.test(phone.replace(/[\s-]/g, ""))) {
+                showMessage("Please enter a valid mobile number with country code", "error");
+                return;
+            }
 
-            const data = await res.json();
+            // Disable button and show loading
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = 'Logging in<span class="spinner"></span>';
 
-            if (data.success) {
-                localStorage.setItem("phone", phone);
-                window.location.href = "/dashboard";
-            } else {
-                document.getElementById("msg").innerText = data.message;
+            try {
+                const res = await fetch("/api/users", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ phone })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    localStorage.setItem("phone", phone);
+                    showMessage("Login successful! Redirecting...", "success");
+
+                    // Small delay for user to see success message
+                    setTimeout(() => {
+                        window.location.href = "/dashboard";
+                    }, 1000);
+                } else {
+                    showMessage(data.message || "Login failed. Please try again.", "error");
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = "Login";
+                }
+            } catch (error) {
+                showMessage("Network error. Please check your connection and try again.", "error");
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = "Login";
+                console.error("Login error:", error);
             }
         }
+
+        function showMessage(message, type) {
+            const msgElement = document.getElementById("msg");
+            msgElement.textContent = message;
+            msgElement.className = `message ${type}`;
+        }
+
+        // Format phone number as user types (optional enhancement)
+        document.getElementById("phone").addEventListener("input", function (e) {
+            // You can add phone number formatting logic here if needed
+        });
+
+        // Allow Enter key to submit
+        document.getElementById("phone").addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                handleLogin(e);
+            }
+        });
     </script>
 </body>
 
