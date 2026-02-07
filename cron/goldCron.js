@@ -11,14 +11,14 @@ const checkGoldPrice = require("../services/goldPriceService");
  * Start the automated gold price monitoring cron job
  * @param {Object} client - Twilio client instance for sending alerts
  * 
- * Schedule pattern: Every 10 minutes
+ * Schedule pattern: Every 1 hour at minute 0 (top of the hour)
  * Cron format: minute hour day month weekday
  */
 function startGoldCron(client) {
-    console.log("📅 Setting up cron schedule: Every 10 minutes");
+    console.log("📅 Setting up cron schedule: Every 1 hour at minute 0");
 
-    // Schedule: Every 10 minutes
-    cron.schedule("*/10 * * * *", async () => {
+    // Schedule: Every 1 hour at minute 0
+    cron.schedule("0 * * * *", async () => {
         const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
         console.log("\n" + "─".repeat(60));
         console.log(`⏱  CRON JOB TRIGGERED - ${timestamp}`);
