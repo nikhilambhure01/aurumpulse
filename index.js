@@ -7,6 +7,8 @@ const startGoldCron = require("./cron/goldCron");
 const checkGoldPrice = require("./services/goldPriceService");
 const sendSubscriptionCheck = require("./utils/sendSubscriptionCheck");
 const User = require("./models/User");
+const startDailyGoldUpdateCron = require("./cron/dailyGoldUpdateCron");
+const sendDailyGoldUpdate = require("./services/dailyGoldUpdateService");
 
 require("dotenv").config();
 
@@ -39,6 +41,9 @@ const client = twilio(
     process.env.TWILIO_AUTH_TOKEN
 );
 console.log("✅ Twilio client initialized");
+
+// Start daily gold price update cron job (runs every day at 9:00 AM IST)
+startDailyGoldUpdateCron(client);
 
 // ===========================================
 // API ENDPOINTS
@@ -172,6 +177,12 @@ app.post("/api/gold-price", async (req, res) => {
         console.error("❌ Error checking gold price:", error.message);
         res.status(500).json({ success: false, error: error.message });
     }
+});
+
+// POST /api/daily-update/test
+app.post("/api/daily-update/test", async (req, res) => {
+    await sendDailyGoldUpdate(client);
+    res.json({ success: true, message: "Daily update sent" });
 });
 
 // CRON JOB INITIALIZATION
