@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Dashboard</title>
+</head>
+
+<body>
+    <h2>Subscription Dashboard</h2>
+    <button onclick="logout()" style="float:right;">Logout</button>
+
+    <p><b>Your Number:</b> <span id="phone"></span></p>
+
+    <!-- ACTIVE SUBSCRIPTION -->
+    <div id="activeBox" style="display:none;">
+        <p>✅ Your subscription is active</p>
+
+        <a href="https://api.whatsapp.com/send/?phone=%2B14155238886&text=STOP" target="_blank">
+            <button>Unsubscribe</button>
+        </a>
+
+        <h3>Check Subscription Status</h3>
+        <button onclick="checkStatus()">Re-check Status</button>
+
+        <p id="activeStatus"></p>
+    </div>
+
+    <!-- INACTIVE SUBSCRIPTION -->
+    <div id="inactiveBox" style="display:none;">
+        <h3>Step 1: Activate WhatsApp Subscription</h3>
+
+        <a href="https://api.whatsapp.com/send/?phone=%2B14155238886&text=join+clay-closer" target="_blank">
+            <button>Activate via WhatsApp</button>
+        </a>
+
+        <h3>Step 2: Check Subscription Status</h3>
+        <button onclick="checkStatus()">Check Status</button>
+
+        <p id="inactiveStatus"></p>
+    </div>
+
+    <script>
+        const phone = localStorage.getItem("phone");
+
+        // 🚫 Protect dashboard
+        if (!phone) {
+            window.location.href = "/login";
+        }
+
+        document.getElementById("phone").innerText = phone;
+
+        function logout() {
+            localStorage.removeItem("phone");
+            window.location.href = "/login";
+        }
+
+        // 🔍 Load subscription status on page load
+        async function loadStatus() {
+            try {
+                const res = await fetch(`/api/users/status/${phone}`);
+                const data = await res.json();
+
+                // Reset messages
+                document.getElementById("activeStatus").innerText = "";
+                document.getElementById("inactiveStatus").innerText = "";
+
+                if (data.success && data.isActive) {
+                    document.getElementById("activeBox").style.display = "block";
+                    document.getElementById("inactiveBox").style.display = "none";
+                } else {
+                    document.getElementById("inactiveBox").style.display = "block";
+                    document.getElementById("activeBox").style.display = "none";
+                }
+            } catch (err) {
+                document.getElementById("inactiveStatus").innerText =
+                    "⚠️ Unable to fetch status. Try again later.";
+            }
+        }
+
+        // 🔁 Check subscription manually
+        async function checkStatus() {
+            try {
+                const res = await fetch("/api/subscription/check", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ phone })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById("activeStatus").innerText =
+                        "✅ Subscription Active!";
+                    loadStatus(); // refresh UI
+                } else {
+                    document.getElementById("inactiveStatus").innerText =
+                        "❌ Not Active. Please join WhatsApp sandbox first.";
+                }
+            } catch (err) {
+                document.getElementById("inactiveStatus").innerText =
+                    "⚠️ Server error. Please try again.";
+            }
+        }
+
+        // Run on load
+        loadStatus();
+    </script>
+</body>
+
+</html>

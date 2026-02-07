@@ -1,16 +1,20 @@
-require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const twilio = require("twilio");
+const path = require("path");
 
 const startGoldCron = require("./cron/goldCron");
 const checkGoldPrice = require("./services/goldPriceService");
 const sendSubscriptionCheck = require("./utils/sendSubscriptionCheck");
 const User = require("./models/User");
 
+require("dotenv").config();
+
 const app = express();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public"))); // Serve static files
 
 const PORT = 3000;
 
@@ -40,16 +44,65 @@ console.log("✅ Twilio client initialized");
 // API ENDPOINTS
 // ===========================================
 
-// POST /api/users
+// POST /api/users - Register a new user with their phone number
 app.post("/api/users", async (req, res) => {
-    const { phone } = req.body;
+    try {
+        const { phone } = req.body;
 
-    const user = await User.create({ phone });
+        if (!phone) {
+            return res.status(400).json({
+                success: false,
+                message: "Phone number is required",
+            });
+        }
+
+        // Check if user already exists
+        const existingUser = await User.findOne({ phone });
+
+        if (existingUser) {
+            return res.json({
+                success: true,
+                message: "User already registered",
+                user: existingUser,
+            });
+        }
+
+        const user = await User.create({
+            phone,
+            isActive: false,
+            isVerified: false,
+        });
+
+        res.json({
+            success: true,
+            message: "User registered. Ask user to join WhatsApp sandbox.",
+            user,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message,
+        });
+    }
+});
+
+// GET /api/users/status/:phone - GET user status by phone
+app.get("/api/users/status/:phone", async (req, res) => {
+    const { phone } = req.params;
+
+    const user = await User.findOne({ phone });
+
+    if (!user) {
+        return res.status(404).json({
+            success: false,
+            message: "User not found",
+        });
+    }
 
     res.json({
         success: true,
-        message: "User added. Ask user to join WhatsApp sandbox.",
-        user,
+        isActive: user.isActive,
+        isVerified: user.isVerified,
     });
 });
 
@@ -126,11 +179,19 @@ app.post("/api/gold-price", async (req, res) => {
 startGoldCron(client);
 console.log("✅ Cron job started - checking gold price every 10 minutes");
 
-// GET /
-app.get('/', (req, res) => {
-    console.log("🏥 Health check endpoint accessed");
-    res.send('Hello, Aurum! 🥇 Gold Price Monitoring System is running.');
+// FRONTEND ROUTES
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public/index.html"));
 });
+
+app.get("/login", (req, res) => {
+    res.sendFile(path.join(__dirname, "public/login.html"));
+});
+
+app.get("/dashboard", (req, res) => {
+    res.sendFile(path.join(__dirname, "public/dashboard.html"));
+});
+
 
 // START SERVER
 app.listen(PORT, () => {

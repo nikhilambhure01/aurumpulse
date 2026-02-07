@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Login</title>
+</head>
+
+<body>
+    <h2>Login with Mobile Number</h2>
+
+    <input type="text" id="phone" placeholder="+91XXXXXXXXXX" />
+    <br /><br />
+    <button onclick="login()">Login</button>
+
+    <p id="msg"></p>
+
+    <script>
+        async function login() {
+            const phone = document.getElementById("phone").value;
+
+            const res = await fetch("/api/users", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                localStorage.setItem("phone", phone);
+                window.location.href = "/dashboard";
+            } else {
+                document.getElementById("msg").innerText = data.message;
+            }
+        }
+
+        // 🔐 If already logged in, redirect to dashboard
+        if (localStorage.getItem("phone")) {
+            window.location.href = "/dashboard";
+        }
+
+        async function login() {
+            const phone = document.getElementById("phone").value;
+
+            if (!phone) {
+                document.getElementById("msg").innerText =
+                    "Please enter your mobile number";
+                return;
+            }
+
+            const res = await fetch("/api/users", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                localStorage.setItem("phone", phone);
+                window.location.href = "/dashboard";
+            } else {
+                document.getElementById("msg").innerText = data.message;
+            }
+        }
+    </script>
+</body>
+
+</html>
