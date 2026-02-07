@@ -1,9 +1,3 @@
-// ===========================================
-// AURUMPULSE - Gold Price Monitoring System
-// ===========================================
-// Main application entry point
-// Handles Express server, MongoDB connection, and cron job initialization
-
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
@@ -11,6 +5,7 @@ const twilio = require("twilio");
 
 const startGoldCron = require("./cron/goldCron");
 const checkGoldPrice = require("./services/goldPriceService");
+const sendSubscriptionCheck = require("./utils/sendSubscriptionCheck");
 const User = require("./models/User");
 
 const app = express();
@@ -21,9 +16,6 @@ const PORT = 3000;
 
 console.log("🚀 Starting AuruMPulse application...");
 
-// ===========================================
-// DATABASE CONNECTION
-// ===========================================
 // Connect to MongoDB Atlas using connection string from environment variables
 mongoose
     .connect(process.env.MONGO_URI)
@@ -36,9 +28,6 @@ mongoose
         process.exit(1); // Exit if DB connection fails
     });
 
-// ===========================================
-// TWILIO CLIENT SETUP
-// ===========================================
 // Initialize Twilio client for sending WhatsApp alerts
 console.log("📱 Initializing Twilio client for WhatsApp alerts...");
 const client = twilio(
@@ -64,12 +53,58 @@ app.post("/api/users", async (req, res) => {
     });
 });
 
-/**
- * GET /api/gold-price
- * Manual trigger to check current gold price
- * Returns current price, price difference, and alert status
- */
-app.get("/api/gold-price", async (req, res) => {
+// POST /api/subscription/check
+app.post("/api/subscription/check", async (req, res) => {
+    try {
+        const { phone } = req.body;
+
+        if (!phone) {
+            return res.status(400).json({
+                success: false,
+                message: "Phone number is required",
+            });
+        }
+
+        const user = await User.findOne({ phone });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        const result = await sendSubscriptionCheck(client, phone);
+
+        if (result.success) {
+            user.isActive = true;
+            await user.save();
+
+            return res.json({
+                success: true,
+                message: "Subscription is active",
+                user,
+            });
+        } else {
+            user.isActive = false;
+            await user.save();
+
+            return res.status(403).json({
+                success: false,
+                message: "Subscription inactive. Ask user to join WhatsApp sandbox.",
+                reason: result.reason,
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message,
+        });
+    }
+});
+
+// POST /api/gold-price
+app.post("/api/gold-price", async (req, res) => {
     console.log("📡 API Request: Manual gold price check triggered");
 
     try {
@@ -86,27 +121,18 @@ app.get("/api/gold-price", async (req, res) => {
     }
 });
 
-// ===========================================
 // CRON JOB INITIALIZATION
-// ===========================================
 // Start automated gold price monitoring (runs every 10 minutes)
-console.log("⏰ Initializing automated gold price monitoring...");
 startGoldCron(client);
 console.log("✅ Cron job started - checking gold price every 10 minutes");
 
-/**
- * GET /
- * Health check endpoint
- */
+// GET /
 app.get('/', (req, res) => {
     console.log("🏥 Health check endpoint accessed");
     res.send('Hello, Aurum! 🥇 Gold Price Monitoring System is running.');
 });
 
-
-// ===========================================
 // START SERVER
-// ===========================================
 app.listen(PORT, () => {
     console.log("\n" + "=".repeat(50));
     console.log("🎉 AuruMPulse Server Started Successfully!");

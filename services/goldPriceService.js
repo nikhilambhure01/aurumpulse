@@ -72,7 +72,7 @@ async function checkGoldPrice(client) {
                     await sendWhatsAppAlert(
                         client,
                         user.phone,
-                        lastRecord.price_ounce,
+                        lastRecord.price_gram_24k,
                         currentPrice,
                         priceDiff
                     );
